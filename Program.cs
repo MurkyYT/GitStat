@@ -105,7 +105,7 @@ namespace GitStat
                             totalDownloadsReleases[1] += oldReleasesCount;
                         }
                         if (totalDownloadsReleases[1] < totalDownloadsReleases[0])
-                            Console.WriteLine($"Overall download count changed! {totalDownloadsReleases[0]} -> {totalDownloadsReleases[1]}");
+                            Console.WriteLine($"Overall download count changed! {totalDownloadsReleases[1]} -> {totalDownloadsReleases[0]}");
                         bool changed = false;
                         for (int j = 0; j < releases.Length; j++)
                         {
