@@ -103,7 +103,7 @@ namespace GitStat
                                 Console.WriteLine($"Release '{releases[j].name}' is new");
                             }
                         }
-                        while (originalIndex >= 0)
+                        while (originalIndex >= 0 && compareIndex >= 0)
                         {
                             try
                             {
@@ -121,6 +121,7 @@ namespace GitStat
                             catch (IndexOutOfRangeException)
                             {
                                 originalIndex--;
+                                Console.WriteLine($"Release '{compareReleases[compareReleases.Length - compareIndex - 1].name}' was removed");
                             }
                         }
                         if (totalDownloadsReleases[1] < totalDownloadsReleases[0])
@@ -131,7 +132,7 @@ namespace GitStat
                             if (downloadsReleases[0,j] > downloadsReleases[1,j])
                             {
                                 changed = true;
-                                string releaseName = releases[j].name;
+                                string releaseName = compareReleases[j].name;
                                 Console.WriteLine($"Release '{releaseName}' has updated downloads from {downloadsReleases[1, j]} to {downloadsReleases[0, j]}");
                             }
                         }
