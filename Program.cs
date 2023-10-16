@@ -91,23 +91,42 @@ namespace GitStat
                     {
                         //TODO: actually compare
                         Release[] compareReleases = JsonConvert.DeserializeObject<Release[]>(File.ReadAllText(args[i + 1]));
-                        ulong[,] downloadsReleases = new ulong[2, releases.Length];
+                        ulong[,] downloadsReleases = new ulong[2, compareReleases.Length];
                         ulong[] totalDownloadsReleases = new ulong[2];
-                        for (int j = 0; j < compareReleases.Length; j++)
+                        int compareIndex = compareReleases.Length - 1;
+                        int originalIndex = compareReleases.Length - 1;
+                        if (releases.Length > compareReleases.Length)
                         {
-                            ulong newReleasesCount = 0;
-                            ulong oldReleasesCount = 0;
-                            releases[j].assets.ToList().ForEach(x => newReleasesCount += x.downloadCount);
-                            compareReleases[j].assets.ToList().ForEach(x => oldReleasesCount += x.downloadCount);
-                            downloadsReleases[0, j] = newReleasesCount;
-                            downloadsReleases[1, j] = oldReleasesCount;
-                            totalDownloadsReleases[0] += newReleasesCount;
-                            totalDownloadsReleases[1] += oldReleasesCount;
+                            originalIndex += releases.Length - compareReleases.Length;
+                            for (int j = 0; j < releases.Length - compareReleases.Length; j++)
+                            {
+                                Console.WriteLine($"Release '{releases[j].name}' is new");
+                            }
+                        }
+                        while (originalIndex >= 0)
+                        {
+                            try
+                            {
+                                ulong newReleasesCount = 0;
+                                ulong oldReleasesCount = 0;
+                                releases[originalIndex].assets.ToList().ForEach(x => newReleasesCount += x.downloadCount);
+                                compareReleases[compareIndex].assets.ToList().ForEach(x => oldReleasesCount += x.downloadCount);
+                                downloadsReleases[0, compareIndex] = newReleasesCount;
+                                downloadsReleases[1, compareIndex] = oldReleasesCount;
+                                totalDownloadsReleases[0] += newReleasesCount;
+                                totalDownloadsReleases[1] += oldReleasesCount;
+                                originalIndex--;
+                                compareIndex--;
+                            }
+                            catch (IndexOutOfRangeException)
+                            {
+                                originalIndex--;
+                            }
                         }
                         if (totalDownloadsReleases[1] < totalDownloadsReleases[0])
                             Console.WriteLine($"Overall download count changed! {totalDownloadsReleases[1]} -> {totalDownloadsReleases[0]}");
                         bool changed = false;
-                        for (int j = 0; j < compareReleases.Length; j++)
+                        for (int j = compareReleases.Length - 1; j >= 0; j--)
                         {
                             if (downloadsReleases[0,j] > downloadsReleases[1,j])
                             {
@@ -119,7 +138,7 @@ namespace GitStat
                         if(!changed)
                             Console.WriteLine("Nothing has changed!");
                     }
-                    catch { Console.WriteLine("An error occured when comparing the file, check if the path is correct!"); }
+                    catch (Exception ex) { Console.WriteLine("An error occured when comparing the file, check if the path is correct!\n"+ex); }
                 }
             }
         }
