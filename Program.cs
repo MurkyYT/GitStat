@@ -93,7 +93,7 @@ namespace GitStat
                         Release[] compareReleases = JsonConvert.DeserializeObject<Release[]>(File.ReadAllText(args[i + 1]));
                         ulong[,] downloadsReleases = new ulong[2, releases.Length];
                         ulong[] totalDownloadsReleases = new ulong[2];
-                        for (int j = 0; j < releases.Length; j++)
+                        for (int j = 0; j < compareReleases.Length; j++)
                         {
                             ulong newReleasesCount = 0;
                             ulong oldReleasesCount = 0;
@@ -107,7 +107,7 @@ namespace GitStat
                         if (totalDownloadsReleases[1] < totalDownloadsReleases[0])
                             Console.WriteLine($"Overall download count changed! {totalDownloadsReleases[1]} -> {totalDownloadsReleases[0]}");
                         bool changed = false;
-                        for (int j = 0; j < releases.Length; j++)
+                        for (int j = 0; j < compareReleases.Length; j++)
                         {
                             if (downloadsReleases[0,j] > downloadsReleases[1,j])
                             {
