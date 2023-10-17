@@ -34,50 +34,54 @@ namespace GitStat
 
         private static void CLIMain(string[] args)
         {
-            if (args.Length < 2)
+            try
             {
-                Console.WriteLine("Usage: GitStat <repo-author> <repo-name> [-s] [-C <path>] [-S <path>]\n\nHelp:\n" +
-                    "[-C <path>] - Compare current repo status to an older one which is saved in a json file\n" +
-                    "[-S <path>] - Save current repo status to a file\n" +
-                    "[-s] - Silent run, without writing to console except errors");
-                return;
-            }
-            bool silent = HasSilent(args);
-            string url = $"https://api.github.com/repos/{args[0]}/{args[1]}/releases";
-            string data = GetWebInfo(url);
-            if (data == "")
-            {
-                Console.WriteLine("Couldn't find the specified repo!");
-                return;
-            }
-            Release[] releases = JsonConvert.DeserializeObject<Release[]>(data);
-            if (!silent)
-            {
-                StringBuilder stringBuilder = new StringBuilder();
-                ulong totalDownloads = 0;
-                for (int i = 0; i < releases.Length; i++)
+                if (args.Length < 2)
                 {
-                    Release release = releases[i];
-                    ulong totalReleaseDownloads = 0;
-                    release.assets.ToList().ForEach(x => totalReleaseDownloads += x.downloadCount);
-                    stringBuilder.AppendLine($"Release {release.name}, tag: {release.tagName}");
-                    stringBuilder.AppendLine("-------------");
-                    stringBuilder.AppendLine($"Release info:");
-                    stringBuilder.AppendLine($"Published on: {release.publishedAt}");
-                    stringBuilder.AppendLine($"Release Author: {release.author.login}");
-                    stringBuilder.AppendLine($"Downloads: {totalReleaseDownloads}");
-                    stringBuilder.AppendLine($"Download info:");
-                    foreach (Asset item in release.assets)
-                        stringBuilder.AppendLine($"{item.name}: {item.downloadCount}");
-                    totalDownloads += totalReleaseDownloads;
-                    stringBuilder.AppendLine("-------------");
+                    Console.WriteLine("Usage: GitStat <repo-author> <repo-name> [-s] [-C <path>] [-S <path>]\n\nHelp:\n" +
+                        "[-C <path>] - Compare current repo release status to an older one which is saved in a json file\n" +
+                        "[-S <path>] - Save current repo release status to a file\n" +
+                        "[-s] - Silent run, without writing to console except errors");
+                    return;
                 }
-                Console.WriteLine($"{args[0]} - {args[1]}\n" +
-                    $"Total downloads: {totalDownloads}");
-                Console.WriteLine(stringBuilder.ToString());
+                bool silent = HasSilent(args);
+                string url = $"https://api.github.com/repos/{args[0]}/{args[1]}/releases";
+                string data = GetWebInfo(url);
+                if (data == "")
+                {
+                    Console.WriteLine("Couldn't find the specified repo!");
+                    return;
+                }
+                Release[] releases = JsonConvert.DeserializeObject<Release[]>(data);
+                if (!silent)
+                {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    ulong totalDownloads = 0;
+                    for (int i = 0; i < releases.Length; i++)
+                    {
+                        Release release = releases[i];
+                        ulong totalReleaseDownloads = 0;
+                        release.assets.ToList().ForEach(x => totalReleaseDownloads += x.downloadCount);
+                        stringBuilder.AppendLine($"Release {release.name}, tag: {release.tagName}");
+                        stringBuilder.AppendLine("-------------");
+                        stringBuilder.AppendLine($"Release info:");
+                        stringBuilder.AppendLine($"Published on: {release.publishedAt}");
+                        stringBuilder.AppendLine($"Release Author: {release.author.login}");
+                        stringBuilder.AppendLine($"Downloads: {totalReleaseDownloads}");
+                        stringBuilder.AppendLine($"Download info:");
+                        foreach (Asset item in release.assets)
+                            stringBuilder.AppendLine($"{item.name}: {item.downloadCount}");
+                        totalDownloads += totalReleaseDownloads;
+                        stringBuilder.AppendLine("-------------");
+                    }
+                    Console.WriteLine($"{args[0]} - {args[1]}\n" +
+                        $"Total downloads: {totalDownloads}");
+                    Console.WriteLine(stringBuilder.ToString());
+                }
+                CompareFile(args, releases);
+                SaveFile(args, data);
             }
-            CompareFile(args, releases);
-            SaveFile(args,data);
+            catch (Exception ex) { Console.WriteLine($"A critical error occured!\n {ex}"); Console.ReadKey(); }
         }
 
         private static void CompareFile(string[] args, Release[] releases)
