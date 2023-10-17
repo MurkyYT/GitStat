@@ -100,7 +100,12 @@ namespace GitStat
                             originalIndex += releases.Length - compareReleases.Length;
                             for (int j = 0; j < releases.Length - compareReleases.Length; j++)
                             {
-                                Console.WriteLine($"Release '{releases[j].name}' is new");
+                                Release release = releases[j];
+                                Console.WriteLine($"Release '{release.name}' is new");
+                                ulong newReleasesCount = 0;
+                                release.assets.ToList().ForEach(x => newReleasesCount += x.downloadCount);
+                                Console.WriteLine($"Download count: {newReleasesCount}");
+                                totalDownloadsReleases[0] += newReleasesCount;
                             }
                         }
                         while (originalIndex >= 0 && compareIndex >= 0)
@@ -124,8 +129,10 @@ namespace GitStat
                                 Console.WriteLine($"Release '{compareReleases[compareReleases.Length - compareIndex - 1].name}' was removed");
                             }
                         }
-                        if (totalDownloadsReleases[1] < totalDownloadsReleases[0])
+                        if (totalDownloadsReleases[1] != totalDownloadsReleases[0])
                             Console.WriteLine($"Overall download count changed! {totalDownloadsReleases[1]} -> {totalDownloadsReleases[0]}");
+                        else
+                            Console.WriteLine($"Overall download count {totalDownloadsReleases[1]}");
                         bool changed = false;
                         for (int j = compareReleases.Length - 1; j >= 0; j--)
                         {
