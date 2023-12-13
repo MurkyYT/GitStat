@@ -45,7 +45,7 @@ namespace GitStat
                     return;
                 }
                 bool silent = HasSilent(args);
-                string url = $"https://api.github.com/repos/{args[0]}/{args[1]}/releases";
+                string url = $"https://api.github.com/repos/{args[0]}/{args[1]}/releases??per_page=1000";
                 string data = GetWebInfo(url);
                 if (data == "")
                 {
@@ -130,6 +130,7 @@ namespace GitStat
                             catch (IndexOutOfRangeException)
                             {
                                 originalIndex--;
+                                compareIndex++;
                                 Console.WriteLine($"Release '{compareReleases[compareReleases.Length - compareIndex - 1].name}' was removed");
                             }
                         }
